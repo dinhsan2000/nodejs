@@ -1,0 +1,40 @@
+{
+  message: 'connect ETIMEDOUT',
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined,
+  level: 'error',
+  timestamp: '2024-05-06T10:41:07.171Z'
+}
+{
+  message: 'connect ETIMEDOUT',
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined,
+  level: 'error',
+  timestamp: '2024-05-06T10:41:45.351Z'
+}
+{
+  message: 'connect ETIMEDOUT',
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined,
+  level: 'error',
+  timestamp: '2024-05-06T10:42:18.960Z'
+}
+{
+  message: 'connect ETIMEDOUT',
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined,
+  level: 'error',
+  timestamp: '2024-05-06T10:43:52.225Z'
+}

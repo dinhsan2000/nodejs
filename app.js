@@ -3,6 +3,8 @@ import cors from "cors";
 import router from "./routes/index.js";
 import {BaseModel} from "./models/base.model.js";
 import dotenv from "dotenv";
+import {Logger} from "./logger.js";
+import {logger} from "./utils/index.js";
 
 class App {
   // Initialize the server
@@ -24,13 +26,8 @@ class App {
   // Bootstrap the application
   bootstrap() {
     new App().init();
-    new BaseModel().init()
-    .then((connection) => {
-      console.log('Connected to the database');
-      return connection;
-    }).catch((error) => {
-      console.log('Error connecting to the database: ', error);
-    });
+    new BaseModel().init().then(r => console.log("Database connected")).catch(e => logger("error", e));
+    // new Logger().init();
   }
 }
 

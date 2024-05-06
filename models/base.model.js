@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import {logger} from "../utils/index.js";
 
 export class BaseModel {
 
@@ -16,9 +17,10 @@ export class BaseModel {
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
+        port: process.env.DB_PORT,
       });
     } catch (error) {
-      console.log('Connection Error: ', error);
+      logger('error', error)
     }
   };
 
@@ -28,7 +30,7 @@ export class BaseModel {
 
       return this.deleteHiddenFields(rows);
     } catch (error) {
-      console.log('Error: ', error);
+      logger('error', error)
     } finally {
       await this.pool.end(); // Close the connection
     }
@@ -40,7 +42,7 @@ export class BaseModel {
 
       return rows;
     } catch (error) {
-      console.log('Error: ', error);
+      logger('error', error)
     } finally {
       await this.pool.end(); // Close the connection
     }
@@ -52,7 +54,7 @@ export class BaseModel {
 
       return rows;
     } catch (error) {
-      console.log('Error: ', error);
+      logger('error', error)
     } finally {
       await this.pool.end(); // Close the connection
     }
@@ -64,7 +66,7 @@ export class BaseModel {
 
       return rows;
     } catch (error) {
-      console.log('Error: ', error);
+      logger('error', error)
     } finally {
       await this.pool.end(); // Close the connection
     }
@@ -80,7 +82,7 @@ export class BaseModel {
 
       return rows;
     } catch (error) {
-      console.log('Error: ', error);
+      logger('error', error)
     } finally {
       await this.pool.end(); // Close the connection
     }
