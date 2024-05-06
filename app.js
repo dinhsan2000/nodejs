@@ -2,20 +2,26 @@ import express from "express";
 import cors from "cors";
 import router from "./routes/index.js";
 import {BaseModel} from "./models/base.model.js";
+import dotenv from "dotenv";
 
 class App {
   // Initialize the server
   init() {
     const app = express();
-    app.use(cors());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
-    app.use("/api", router);
-    app.listen(3000, () => {
-      console.log("Server is running on port 3000");
+    dotenv.config();
+
+    app.use(cors()); // Enable CORS
+    app.use(express.json()); // Parse JSON bodies
+    app.use(express.urlencoded({extended: true})); // Parse URL-encoded bodies
+    app.use("/api", router); // Use the router
+
+    // Start the server
+    app.listen(process.env.APP_PORT, () => {
+      console.log(`Server is running on port ${process.env.APP_PORT}`);
     });
   }
 
+  // Bootstrap the application
   bootstrap() {
     new App().init();
     new BaseModel().init()
