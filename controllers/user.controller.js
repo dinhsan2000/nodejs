@@ -1,5 +1,7 @@
 import BaseController from './base.controller.js';
 import {UserModel} from "../models/user.model.js";
+import {Bcrypt} from "../utils/bcrypt.js";
+import {logger} from "../utils/index.js";
 
 class UserController extends BaseController {
 
@@ -11,11 +13,27 @@ class UserController extends BaseController {
   }
 
   async store(request, response) {
-    const user = new UserModel();
-    const data = request.body;
-    const users = await user.create(data);
+      try {
+          const { name, email, password } = request.body;
+          if (!name || !email || !password) {
+              return response.status(400).send("Missing required fields.");
+          }
 
-    return await response.send(users);
+          const user = new UserModel();
+          const bcrypt = new Bcrypt();
+          const passwordHashed = await bcrypt.hash(password);
+
+          const newUser = await user.create({
+              name,
+              email,
+              password: passwordHashed
+          });
+
+          return response.send(newUser);
+      } catch (error) {
+          logger('error', error);
+          return response.status(500).send("Internal Server Error");
+      }
   }
 
   async show(request, response) {
@@ -42,6 +60,7 @@ class UserController extends BaseController {
 
     return await response.send('Deleted successfully');
   }
+
 
 }
 
