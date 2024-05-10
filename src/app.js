@@ -21,7 +21,7 @@ class App {
       res.json({
         message: 'Route not found',
       });
-    })
+    });
 
     // Start the server
     app.listen(process.env.APP_PORT, () => {
