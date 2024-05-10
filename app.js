@@ -3,8 +3,8 @@ import cors from "cors";
 import router from "./routes/index.js";
 import {BaseModel} from "./models/base.model.js";
 import dotenv from "dotenv";
-import {Logger} from "./logger.js";
 import {logger} from "./utils/index.js";
+import compression from "compression";
 
 class App {
   // Initialize the server
@@ -15,6 +15,7 @@ class App {
     app.use(cors()); // Enable CORS
     app.use(express.json()); // Parse JSON bodies
     app.use(express.urlencoded({extended: true})); // Parse URL-encoded bodies
+    app.use(compression()); // Compress all responses
     app.use("/api", router); // Use the router
 
     // Start the server
