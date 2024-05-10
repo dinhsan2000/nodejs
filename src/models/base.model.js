@@ -1,26 +1,22 @@
 import mysql from 'mysql2/promise';
 import { logger } from '../utils/index.js';
+import Database from "./database.js";
 
-export class BaseModel {
+export class BaseModel extends Database {
   table = '';
   hidden = [];
 
   constructor() {
+    super();
     this.init();
   }
 
   async init() {
-    try {
-      return (this.pool = mysql.createPool({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
-        port: process.env.DB_PORT,
-      }));
+    try{
+      this.pool = this.connection();
     } catch (error) {
       logger('error', error);
-      throw new Error('Error connecting to the database');
+      throw new Error('Error initializing database');
     }
   }
 
