@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import { logger } from '../utils/index.js';
-import Database from "./database.js";
+import Database from './database.js';
 
 export class BaseModel extends Database {
   table = '';
@@ -8,11 +8,7 @@ export class BaseModel extends Database {
 
   constructor() {
     super();
-    this.init();
-  }
-
-  async init() {
-    try{
+    try {
       this.pool = this.connection();
     } catch (error) {
       logger('error', error);
@@ -20,9 +16,13 @@ export class BaseModel extends Database {
     }
   }
 
-  async getAll() {
+  async get() {
+    if (!this.sql || this.sql === '') {
+      this.sql = `SELECT * FROM ${this.table}`;
+    }
+
     try {
-      const [rows] = await this.pool.query(`SELECT * FROM ${this.table}`);
+      const [rows] = await this.pool.query(this.sql);
 
       return this.deleteHiddenFields(rows);
     } catch (error) {
@@ -33,18 +33,48 @@ export class BaseModel extends Database {
     }
   }
 
+  async find(id) {
+    try {
+      const [row] = await this.pool.query(
+        `SELECT * FROM ${this.table} WHERE id = ?`,
+        [id],
+      );
+      return this.deleteHiddenFields(row);
+    } catch (error) {
+      logger('error', error);
+      throw new Error('Error fetching data');
+    } // Don't close the connection here
+  }
+
+  where(condition) {
+    let sql = `SELECT * FROM ${this.table} WHERE `;
+    const keys = Object.keys(condition);
+    keys.forEach((key, index) => {
+      if (index === keys.length - 1) {
+        sql += `${key} = '${condition[key]}'`;
+      } else {
+        sql += `${key} = '${condition[key]}' AND `;
+      }
+    });
+
+    this.sql = sql;
+    return this;
+  }
+
+  whereNotNull(field) {
+    this.sql = `SELECT * FROM ${this.table} WHERE ${field} IS NOT NULL`;
+    return this;
+  }
+
+  async select(...fields) {
+    this.sql = `SELECT ${fields.join(', ')} FROM ${this.table}`;
+    return this;
+  }
+
   async create(data) {
     try {
-      const [rows, fields] = await this.pool.query(
-        `INSERT INTO ${this.table} SET ?`,
-        data,
-      );
-      const [newData] = await this.pool.query(
-        `SELECT * FROM ${this.table} WHERE id = ?`,
-        rows.insertId,
-      );
-
-      return this.deleteHiddenFields(newData);
+      const [rows] = await this.pool.query(`INSERT INTO ${this.table} SET ?`, data);
+      return await this.find(rows.insertId);
     } catch (error) {
       logger('error', error);
       throw new Error('Error creating data');
@@ -53,18 +83,10 @@ export class BaseModel extends Database {
     }
   }
 
-  async update(data, id) {
+  async update(id, data) {
     try {
-      const [rows, fields] = await this.pool.query(
-        `UPDATE ${this.table} SET ? WHERE id = ?`,
-        [data, id],
-      );
-      const [newData] = await this.pool.query(
-        `SELECT * FROM ${this.table} WHERE id = ?`,
-        id,
-      );
-
-      return this.deleteHiddenFields(newData);
+      await this.pool.query(`UPDATE ${this.table} SET ? WHERE id = ?`, [data, id]);
+      return await this.find(id);
     } catch (error) {
       logger('error', error);
       throw new Error('Error updating data');
@@ -75,12 +97,7 @@ export class BaseModel extends Database {
 
   async delete(id) {
     try {
-      const [rows, fields] = await this.pool.query(
-        `DELETE FROM ${this.table} WHERE id = ?`,
-        id,
-      );
-
-      return rows;
+      await this.pool.query(`DELETE FROM ${this.table} WHERE id = ?`, [id]);
     } catch (error) {
       logger('error', error);
       throw new Error('Error deleting data');
@@ -89,54 +106,12 @@ export class BaseModel extends Database {
     }
   }
 
-  async select(id = null, ...field) {
-    try {
-      let query = `SELECT ${field.length > 0 ? field.join(',') : '*'} FROM ${this.table}`;
-      if (id) {
-        query += ` WHERE id = ${id}`;
-      }
-      const [rows, fields] = await this.pool.query(query);
-
-      return rows;
-    } catch (error) {
-      logger('error', error);
-      throw new Error('Error fetching data');
-    } finally {
-      await this.pool.end(); // Close the connection
-    }
-  }
-
-  async find(id) {
-    try {
-      const [row, fields] = await this.pool.query(
-        `SELECT * FROM ${this.table} WHERE id = ?`,
-        id,
-      );
-
-      return this.deleteHiddenFields(row);
-    } catch (error) {
-      logger('error', error);
-      throw new Error('Error fetching data');
-    } finally {
-      await this.pool.end(); // Close the connection
-    }
-  }
-
   async deleteHiddenFields(data) {
-    let newData = [];
-    try {
-      if (this.hidden.length > 0) {
-        this.hidden.forEach((field) => {
-          newData = data.map((item) => {
-            delete item[field];
-            return item;
-          });
-        });
-      }
-    } catch (error) {
-      logger('error', error);
-      throw new Error('Error deleting hidden fields');
-    }
-    return newData;
+    if (this.hidden.length === 0) return data;
+
+    return data.map((item) => {
+      this.hidden.forEach((field) => delete item[field]);
+      return item;
+    });
   }
 }
