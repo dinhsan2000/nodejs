@@ -12,12 +12,14 @@
     "express": "^4.19.2",
     "mysql2": "^3.9.7",
     "nodemon": "^3.1.0",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "yargs": "^17.7.2"
   },
   "scripts": {
     "start": "node ./src/server.js",
     "dev": "nodemon ./src/server.js",
-    "build": "NODE_ENV=production node ./src/server.js"
+    "build": "NODE_ENV=production node ./src/server.js",
+    "migrate": "node ./src/migrations/migrate.js"
   },
   "devDependencies": {
     "prettier": "^3.2.5"
