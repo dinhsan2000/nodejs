@@ -16,6 +16,12 @@ class App {
     app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
     app.use(compression()); // Compress all responses
     app.use('/api', router); // Use the router
+    app.use(function (req, res) { // Handle route not found
+      res.status(404);
+      res.json({
+        message: 'Route not found',
+      });
+    })
 
     // Start the server
     app.listen(process.env.APP_PORT, () => {
