@@ -38,9 +38,10 @@ export class BaseModel {
 
   async create(data) {
     try {
-      const [rows] = await this.pool.query(`INSERT INTO ${this.table} SET ?`, data);
+      const [rows, fields] = await this.pool.query(`INSERT INTO ${this.table} SET ?`, data);
+      const [newData] = await this.pool.query(`SELECT * FROM ${this.table} WHERE id = ?`, rows.insertId);
 
-      return rows;
+      return this.deleteHiddenFields(newData);
     } catch (error) {
       logger('error', error)
     } finally {
@@ -51,8 +52,9 @@ export class BaseModel {
   async update(data, id) {
     try {
       const [rows, fields] = await this.pool.query(`UPDATE ${this.table} SET ? WHERE id = ?`, [data, id]);
+      const [newData] = await this.pool.query(`SELECT * FROM ${this.table} WHERE id = ?`, id);
 
-      return rows;
+      return this.deleteHiddenFields(newData);
     } catch (error) {
       logger('error', error)
     } finally {
@@ -81,6 +83,18 @@ export class BaseModel {
       const [rows, fields] = await this.pool.query(query);
 
       return rows;
+    } catch (error) {
+      logger('error', error)
+    } finally {
+      await this.pool.end(); // Close the connection
+    }
+  }
+
+  async find(id) {
+    try {
+      const [row, fields] = await this.pool.query(`SELECT * FROM ${this.table} WHERE id = ?`, id);
+
+      return this.deleteHiddenFields(row);
     } catch (error) {
       logger('error', error)
     } finally {

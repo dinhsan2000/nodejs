@@ -13,7 +13,7 @@ class UserController extends BaseController {
   async store(request, response) {
     const user = new UserModel();
     const data = request.body;
-    const users = await user.create('users', data);
+    const users = await user.create(data);
 
     return await response.send(users);
   }
@@ -21,7 +21,7 @@ class UserController extends BaseController {
   async show(request, response) {
     const user = new UserModel();
     const id = request.params.id;
-    const users = await user.getById(id);
+    const users = await user.find(id);
 
     return await response.send(users);
   }
@@ -30,7 +30,7 @@ class UserController extends BaseController {
     const user = new UserModel();
     const id = request.params.id;
     const data = request.body;
-    const users = await user.update(id, data);
+    const users = await user.update(data, id);
 
     return await response.send(users);
   }
@@ -38,7 +38,7 @@ class UserController extends BaseController {
   async destroy(request, response) {
     const user = new UserModel();
     const id = request.params.id;
-    const users = await user.delete(id);
+    await user.delete(id);
 
     return await response.send('Deleted successfully');
   }

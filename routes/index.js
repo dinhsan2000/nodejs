@@ -13,6 +13,9 @@ router.get('/about', (req, res) => {
 
 router.get('/users', UserController.index)
 router.post('/users', UserController.store)
+router.get('/users/:id', UserController.show)
+router.put('/users/:id', UserController.update)
+router.delete('/users/:id', UserController.destroy)
 
 // You can add more routes as needed
 
