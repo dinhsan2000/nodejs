@@ -14,8 +14,8 @@ export class Logger {
         winston.format.prettyPrint()
       ),
       transports: [
-        new winston.transports.File({filename: './logs/error.log', level: 'error'}),
-        new winston.transports.File({filename: './logs/combined.log', level: 'info'}),
+        new winston.transports.File({dirname: './src/logs', filename: 'error.log', level: 'error'}),
+        new winston.transports.File({dirname: './src/logs', filename: 'combined.log', level: 'info'}),
       ]
     });
   }
