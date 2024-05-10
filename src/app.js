@@ -19,8 +19,6 @@ class App {
     this.createExpressApp();
     // Start the server
     this.startServer();
-    // Connect to the database
-    this.connectDatabase();
 
     // Assign this instance to the static property
     App.#instance = this;
@@ -49,17 +47,6 @@ class App {
         `Server is running on ${process.env.APP_URL}:${process.env.APP_PORT}`,
       );
     });
-  }
-
-  connectDatabase() {
-    new Database()
-      .init()
-      .then((r) => {
-        console.log('Database connected');
-      })
-      .catch((error) => {
-        console.log('Error connecting to the database');
-      });
   }
 
   // Static method to get instance

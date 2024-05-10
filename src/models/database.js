@@ -1,19 +1,21 @@
 import mysql from 'mysql2/promise';
 import { logger } from '../utils/index.js';
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default class Database {
   constructor() {
-    this.init();
-  }
-
-  async init() {
-    return this.connection();
+    this.pool = this.connection();
   }
 
   connection() {
-    dotenv.config();
     try {
+      // Check database name configuration
+      if (!process.env.DB_DATABASE) {
+        throw new Error('Database name not set');
+      }
+
       const config = {
         host: process.env.DB_HOST,
         user: process.env.DB_USERNAME,
@@ -22,6 +24,7 @@ export default class Database {
         port: process.env.DB_PORT,
         charset: process.env.DB_CHARSET,
       };
+
       return mysql.createPool(config);
     } catch (error) {
       logger('error', error);

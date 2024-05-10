@@ -9,7 +9,7 @@ async function migrate() {
         const migration = new Migration();
         await migration.migrate();
     } catch (error) {
-        logger('error', 'Database migration failed:' + error);
+        throw new Error(error);
     }
 }
 

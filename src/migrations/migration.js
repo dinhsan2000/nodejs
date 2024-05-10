@@ -2,6 +2,7 @@ import Database from '../models/database.js';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/index.js';
+import dotenv from 'dotenv';
 
 export default class Migration extends Database {
   constructor() {
@@ -14,40 +15,31 @@ export default class Migration extends Database {
   }
 
   async migrate() {
+    dotenv.config();
     try {
       // Read all the files in the migrations folder
       const files = fs.readdirSync(path.resolve('src/migrations'));
+
+      // Check if the migrations table exists
+      const [checkTable] = await this.pool.query(`SHOW TABLES LIKE 'migrations'`);
+
+      // if the table migrations does not exist, create it
+      if (checkTable.length === 0) {
+        await this.pool.query(
+          `CREATE TABLE IF NOT EXISTS migrations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          )`,
+        );
+      }
 
       // Loop through all the files
       for (const file of files) {
         // Skip the file if it is not a .sql file
         if (!file.endsWith('.sql')) {
           continue;
-        }
-
-        // Check if database exists
-        const [checkDatabase] = await this.pool.query(`SHOW DATABASES LIKE ?`, [
-          process.env.DB_NAME,
-        ]);
-
-        // If the database does not exist, create it
-        if (checkDatabase.length === 0) {
-          await this.pool.query(`CREATE DATABASE ${process.env.DB_NAME}`);
-        }
-
-        // Check if the migrations table exists
-        const [checkTable] = await this.pool.query(`SHOW TABLES LIKE 'migrations'`);
-
-        // if the table migrations does not exist, create it
-        if (checkTable.length === 0) {
-          await this.pool.query(
-            `CREATE TABLE IF NOT EXISTS migrations (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                    )`,
-          );
         }
 
         // Check if the file is a .sql file
