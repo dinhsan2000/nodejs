@@ -59,15 +59,14 @@ export default class Migration extends Database {
             // Execute the SQL query
             await this.pool.query(contents);
             // Log the migration
-            logger('info', `Migrated: ${file}`);
+            console.log('\x1b[32m', 'Migrated: ', file);
             // Insert the migration into the migrations table
             await this.pool.query(`INSERT INTO migrations SET ?`, { name: file });
           } else {
-            logger('info', `Skipped: ${file}`);
+            console.log('\x1b[32m', 'Skipped:', file);
           }
         }
       }
-      logger('info', 'Database migration completed successfully.');
     } catch (error) {
       logger('error', 'Database migration failed:' + error);
       throw new Error('Database migration failed');
