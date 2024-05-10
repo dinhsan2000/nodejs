@@ -21,5 +21,15 @@
   },
   "devDependencies": {
     "prettier": "^3.2.5"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "watch": [
+      "*.js",
+      ".env"
+    ]
   }
 }
