@@ -3,7 +3,6 @@ import cors from 'cors';
 import router from './routes/index.js';
 import dotenv from 'dotenv';
 import compression from 'compression';
-import Database from './models/database.js';
 
 class App {
   static #instance;
