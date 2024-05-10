@@ -6,38 +6,73 @@ import compression from 'compression';
 import Database from './models/database.js';
 
 class App {
-  // Initialize the server
-  init() {
-    const app = express();
-    dotenv.config();
+  static #instance;
 
-    app.use(cors()); // Enable CORS
-    app.use(express.json()); // Parse JSON bodies
-    app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-    app.use(compression()); // Compress all responses
-    app.use('/api', router); // Use the router
-    app.use(function (req, res) { // Handle route not found
+  // Private constructor
+  constructor() {
+    if (App.#instance) {
+      throw new Error('Singleton class, use getInstance method instead.');
+    }
+    // Load environment variables
+    dotenv.config();
+    // Create the Express app
+    this.createExpressApp();
+    // Start the server
+    this.startServer();
+    // Connect to the database
+    this.connectDatabase();
+
+    // Assign this instance to the static property
+    App.#instance = this;
+  }
+
+  createExpressApp() {
+    this.app = express();
+    this.app.use(cors()); // Enable CORS
+    this.app.use(express.json()); // Parse JSON bodies
+    this.app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+    this.app.use(compression()); // Compress all responses
+    this.app.use('/api', router); // Use the router
+    this.app.use(function (req, res) {
+      // Handle route not found
       res.status(404);
       res.json({
         message: 'Route not found',
       });
     });
+  }
 
-    // Start the server
-    app.listen(process.env.APP_PORT, () => {
+  startServer() {
+    const port = process.env.PORT || 3000;
+    this.app.listen(port, () => {
       console.log(
         `Server is running on ${process.env.APP_URL}:${process.env.APP_PORT}`,
       );
     });
   }
 
+  connectDatabase() {
+    new Database()
+      .init()
+      .then((r) => {
+        console.log('Database connected');
+      })
+      .catch((error) => {
+        console.log('Error connecting to the database');
+      });
+  }
+
+  // Static method to get instance
+  static getInstance() {
+    if (!App.#instance) {
+      App.#instance = new App();
+    }
+    return App.#instance;
+  }
+
   // Bootstrap the application
-  bootstrap() {
-    new App().init();
-    new Database().init().then((r) => {
-      console.log('Database connected');
-    });
-    // new Logger().init();
+  static bootstrap() {
+    return App.getInstance();
   }
 }
 
