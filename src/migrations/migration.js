@@ -20,6 +20,22 @@ export default class Migration extends Database {
 
       // Loop through all the files
       for (const file of files) {
+        // Skip the file if it is not a .sql file
+        if (!file.endsWith('.sql')) {
+          continue;
+        }
+
+        // Check if database exists
+        const [checkDatabase] = await this.pool.query(`SHOW DATABASES LIKE ?`, [
+          process.env.DB_NAME,
+        ]);
+
+        // If the database does not exist, create it
+        if (checkDatabase.length === 0) {
+          await this.pool.query(`CREATE DATABASE ${process.env.DB_NAME}`);
+        }
+
+        // Check if the migrations table exists
         const [checkTable] = await this.pool.query(`SHOW TABLES LIKE 'migrations'`);
 
         // if the table migrations does not exist, create it
