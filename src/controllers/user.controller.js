@@ -1,39 +1,38 @@
 import BaseController from './base.controller.js';
-import {UserModel} from "../models/user.model.js";
-import {Bcrypt} from "../utils/bcrypt.js";
-import {logger} from "../utils/index.js";
+import { UserModel } from '../models/user.model.js';
+import { Bcrypt } from '../utils/bcrypt.js';
+import { logger } from '../utils/index.js';
 
 class UserController extends BaseController {
-
   async index(request, response) {
     const user = new UserModel();
-    const users = await user.getAll();
+    const users = await user.get();
 
     return await response.send(users);
   }
 
   async store(request, response) {
-      try {
-          const { name, email, password } = request.body;
-          if (!name || !email || !password) {
-              return response.status(400).send("Missing required fields.");
-          }
-
-          const user = new UserModel();
-          const bcrypt = new Bcrypt();
-          const passwordHashed = await bcrypt.hash(password);
-
-          const newUser = await user.create({
-              name,
-              email,
-              password: passwordHashed
-          });
-
-          return response.send(newUser);
-      } catch (error) {
-          logger('error', error);
-          return response.status(500).send("Internal Server Error");
+    try {
+      const { name, email, password } = request.body;
+      if (!name || !email || !password) {
+        return response.status(400).send('Missing required fields.');
       }
+
+      const user = new UserModel();
+      const bcrypt = new Bcrypt();
+      const passwordHashed = await bcrypt.hash(password);
+
+      const newUser = await user.create({
+        name,
+        email,
+        password: passwordHashed,
+      });
+
+      return response.send(newUser);
+    } catch (error) {
+      logger('error', error);
+      return response.status(500).send('Internal Server Error');
+    }
   }
 
   async show(request, response) {
@@ -45,10 +44,22 @@ class UserController extends BaseController {
   }
 
   async update(request, response) {
-    const user = new UserModel();
     const id = request.params.id;
-    const data = request.body;
-    const users = await user.update(data, id);
+    const { name, email, password } = request.body;
+
+    if (!name || !email || !password) {
+      return response.status(400).send('Missing required fields.');
+    }
+
+    const user = new UserModel();
+    const bcrypt = new Bcrypt();
+    const passwordHashed = await bcrypt.hash(password);
+
+    const users = await user.update(id, {
+      name,
+      email,
+      password: passwordHashed,
+    });
 
     return await response.send(users);
   }
@@ -60,8 +71,6 @@ class UserController extends BaseController {
 
     return await response.send('Deleted successfully');
   }
-
-
 }
 
-export default new UserController;
+export default new UserController();
