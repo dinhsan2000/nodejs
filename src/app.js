@@ -4,12 +4,12 @@ import router from './routes/index.js';
 import dotenv from 'dotenv';
 import compression from 'compression';
 
-class App {
+class Application {
   static #instance;
 
   // Private constructor
   constructor() {
-    if (App.#instance) {
+    if (Application.#instance) {
       throw new Error('Singleton class, use getInstance method instead.');
     }
     // Load environment variables
@@ -20,17 +20,17 @@ class App {
     this.startServer();
 
     // Assign this instance to the static property
-    App.#instance = this;
+    Application.#instance = this;
   }
 
   createExpressApp() {
-    this.app = express();
-    this.app.use(cors()); // Enable CORS
-    this.app.use(express.json()); // Parse JSON bodies
-    this.app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-    this.app.use(compression()); // Compress all responses
-    this.app.use('/api', router); // Use the router
-    this.app.use(function (req, res) {
+    this.application = express();
+    this.application.use(cors()); // Enable CORS
+    this.application.use(express.json()); // Parse JSON bodies
+    this.application.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+    this.application.use(compression()); // Compress all responses
+    this.application.use('/api', router); // Use the router
+    this.application.use(function (req, res) {
       // Handle route not found
       res.status(404);
       res.json({
@@ -41,7 +41,7 @@ class App {
 
   startServer() {
     const port = process.env.PORT || 3000;
-    this.app.listen(port, () => {
+    this.application.listen(port, () => {
       console.log(
         `Server is running on ${process.env.APP_URL}:${process.env.APP_PORT}`,
       );
@@ -50,16 +50,16 @@ class App {
 
   // Static method to get instance
   static getInstance() {
-    if (!App.#instance) {
-      App.#instance = new App();
+    if (!Application.#instance) {
+      Application.#instance = new Application();
     }
-    return App.#instance;
+    return Application.#instance;
   }
 
   // Bootstrap the application
   static bootstrap() {
-    return App.getInstance();
+    return Application.getInstance();
   }
 }
 
-export default App;
+export default Application;
