@@ -22,7 +22,7 @@ export class BaseModel extends Database {
    * @returns {Promise<Array>} Data from the table
    * @throws {Error} If there's an error fetching data
    * @finally Close the connection
-   * 
+   *
    */
   async get() {
     if (!this.sql || this.sql === '') {
@@ -48,7 +48,7 @@ export class BaseModel extends Database {
    * @returns {Promise<Object>} Data from the table
    * @throws {Error} If there's an error fetching data
    * @finally Close the connection
-   * 
+   *
    */
   async find(id) {
     try {
@@ -70,7 +70,7 @@ export class BaseModel extends Database {
    * @returns {Promise<Array>} Data from the table
    * @throws {Error} If there's an error fetching data
    * @finally Close the connection
-   * 
+   *
    */
   where(condition) {
     let sql = `SELECT * FROM ${this.table} WHERE `;
@@ -88,13 +88,13 @@ export class BaseModel extends Database {
   }
 
   /**
-   * Find data where a field is not null in the table 
+   * Find data where a field is not null in the table
    *
    * @param {string} field Field to check if it's not null
    * @returns {Promise<Array>} Data from the table
    * @throws {Error} If there's an error fetching data
    * @finally Close the connection
-   * 
+   *
    */
   whereNotNull(field) {
     this.sql = `SELECT * FROM ${this.table} WHERE ${field} IS NOT NULL`;
@@ -102,13 +102,13 @@ export class BaseModel extends Database {
   }
 
   /**
-   * Select fields to fetch from the table 
-   * 
+   * Select fields to fetch from the table
+   *
    * @param  {...string} fields Fields to fetch
    * @returns {Promise<Array>} Data from the table
    * @throws {Error} If there's an error fetching data
    * @finally Close the connection
-   * 
+   *
    */
   async select(...fields) {
     this.sql = `SELECT ${fields.join(', ')} FROM ${this.table}`;
@@ -116,13 +116,13 @@ export class BaseModel extends Database {
   }
 
   /**
-   * Create data in the table 
-   * 
+   * Create data in the table
+   *
    * @param {Object} data Data to create
    * @returns {Promise<Object>} Created data
    * @throws {Error} If there's an error creating data
    * @finally Close the connection
-   * 
+   *
    */
   async create(data) {
     try {
@@ -138,13 +138,13 @@ export class BaseModel extends Database {
 
   /**
    * Update data in the table
-   * 
+   *
    * @param {number} id ID of the data
    * @param {Object} data Data to update
    * @returns {Promise<Object>} Updated data
    * @throws {Error} If there's an error updating data
    * @finally Close the connection
-   * 
+   *
    */
   async update(id, data) {
     try {
@@ -160,12 +160,12 @@ export class BaseModel extends Database {
 
   /**
    * Delete data from the table
-   * 
+   *
    * @param {number} id ID of the data
    * @returns {Promise<void>}
    * @throws {Error} If there's an error deleting data
    * @finally Close the connection
-   * 
+   *
    */
   async delete(id) {
     try {
@@ -179,18 +179,55 @@ export class BaseModel extends Database {
   }
 
   /**
-   * Delete hidden fields from the data
-   * 
-   * @param {Array} data Data to delete hidden fields
-   * @returns {Array} Data without hidden fields
-   * 
+   * Find data by a condition in the table
+   *
+   * @returns {Promise<Object>} Data from the table
+   * @throws {Error} If there's an error fetching data
+   * @finally Close the connection
+   *
    */
-  async deleteHiddenFields(data) {
+  async first() {
+    try {
+      const [row] = await this.pool.query(this.sql);
+      return this.deleteHiddenFields(row);
+    } catch (error) {
+      logger('error', error);
+      throw new Error('Error fetching data');
+    } finally {
+      await this.pool.end(); // Close the connection
+    }
+  }
+
+  /**
+   * If method is called, it will skip hidden fields
+   *
+   * @returns {Array} Data without hidden fields
+   *
+   */
+  withOutHiddenField() {
+    this.hidden = [];
+    return this;
+  }
+
+  /**
+   * Delete hidden fields from the data
+   *
+   * @param {Array|Object} data Data to delete hidden fields
+   * @returns {Array|Object} Data without hidden fields
+   *
+   */
+  deleteHiddenFields(data) {
     if (this.hidden.length === 0) return data;
 
-    return data.map((item) => {
+    const processItem = (item) => {
       this.hidden.forEach((field) => delete item[field]);
       return item;
-    });
+    };
+
+    if (Array.isArray(data)) {
+      return data.map(processItem);
+    } else {
+      return processItem(data);
+    }
   }
 }

@@ -1,6 +1,6 @@
 import express, {response} from 'express';
 import UserController from "../controllers/user.controller.js";
-import { userValidator } from '../validators/user.js';
+import { userLoginValidator, userValidator } from '../validators/user.js';
 import { validate } from '../validators/index.js';
 const router = express.Router();
 
@@ -15,6 +15,7 @@ router.get('/about', (req, res) => {
 
 router.get('/users', UserController.index)
 router.post('/users', userValidator(), validate, UserController.store)
+router.post('/login', userLoginValidator(), validate, UserController.login)
 router.get('/users/:id', UserController.show)
 router.put('/users/:id', UserController.update)
 router.delete('/users/:id', UserController.destroy)

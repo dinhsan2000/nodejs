@@ -7,3 +7,10 @@ export const userValidator = () => {
     body('password').isString().isLength({ min: 8, max: 255 }),
   ];
 };
+
+export const userLoginValidator = () => {
+  return [
+    body('email').isEmail(),
+    body('password').isString().isLength({ min: 6, max: 255 }),
+  ];
+}
