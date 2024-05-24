@@ -1,5 +1,7 @@
 import express, {response} from 'express';
 import UserController from "../controllers/user.controller.js";
+import { userValidator } from '../validators/user.js';
+import { validate } from '../validators/index.js';
 const router = express.Router();
 
 // Define your routes here
@@ -12,7 +14,7 @@ router.get('/about', (req, res) => {
 });
 
 router.get('/users', UserController.index)
-router.post('/users', UserController.store)
+router.post('/users', userValidator(), validate, UserController.store)
 router.get('/users/:id', UserController.show)
 router.put('/users/:id', UserController.update)
 router.delete('/users/:id', UserController.destroy)
