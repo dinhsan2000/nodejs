@@ -21,7 +21,9 @@
     "start": "node ./src/server.js",
     "dev": "nodemon ./src/server.js",
     "build": "NODE_ENV=production node ./src/server.js",
-    "migrate": "node ./src/migrations/migrate.js"
+    "migrate": "node ./src/migrations/migrate.js migrate",
+    "migrate:rollback": "node ./src/migrations/migrate.js rollback",
+    "make:migration": "node ./src/migrations/migrate.js make"
   },
   "devDependencies": {
     "prettier": "^3.2.5"
